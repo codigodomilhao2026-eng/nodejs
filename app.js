@@ -1,21 +1,20 @@
 const express = require('express');
-const path = require('path');
-const indexRouter = require('./routes/index');
+const { createProxyMiddleware } = require('http-proxy-middleware');
 
 const app = express();
-const PORT = 3000;
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// O segredo é o '/' para garantir que qualquer caminho seja repassado
+app.use('/', createProxyMiddleware({
+  target: 'https://api.bybit.com',
+  changeOrigin: true,
+  secure: true,
+  onProxyRes: function (proxyRes, req, res) {
+    proxyRes.headers['access-control-allow-origin'] = '*';
+  },
+  onError: function (err, req, res) {
+    res.status(500).json({ error: 'Erro no Proxy Lisboa IA', message: err.message });
+  }
+}));
 
-// Use the router for handling routes
-app.use('/', indexRouter);
-
-// Catch-all route for handling 404 errors
-app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  });
-
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
-});
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Proxy rodando na porta ${PORT}`));
