@@ -1,17 +1,11 @@
 {
-  "name": "nodejs-app",
+  "name": "bybit-proxy-lisboa",
   "version": "1.0.0",
-  "description": "A minimal Node.js web application.",
-  "main": "app.js",
-  "author": "alphasec",
-  "license": "MIT",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "http-proxy-middleware": "^2.0.6"
-  },
-    "express": "^4.19.2"
-  },
-  "scripts": {
-    "start": "node app.js"
   }
 }
