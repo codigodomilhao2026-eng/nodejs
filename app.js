@@ -1,21 +1,21 @@
 const express = require('express');
-const path = require('path');
-const indexRouter = require('./routes/index');
-
+const { createProxyMiddleware } = require('http-proxy-middleware');
 const app = express();
-const PORT = 3000;
 
-// Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, 'public')));
+// Motor do Proxy que redireciona tudo para a Bybit
+app.use('/', createProxyMiddleware({
+  target: 'https://api.bybit.com',
+  changeOrigin: true,
+  onProxyRes: (proxyRes) => {
+    // Permite que o Base44 acesse os dados sem bloqueio de CORS
+    proxyRes.headers['access-control-allow-origin'] = '*';
+    proxyRes.headers['access-control-allow-methods'] = 'GET, POST, OPTIONS, PUT, PATCH, DELETE';
+    proxyRes.headers['access-control-allow-headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
+  }
+}));
 
-// Use the router for handling routes
-app.use('/', indexRouter);
-
-// Catch-all route for handling 404 errors
-app.use((req, res, next) => {
-    res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
-  });
-
+// Porta dinâmica para o Railway (3000 ou a que ele fornecer)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+  console.log(`Proxy Lisboa IA rodando na porta ${PORT} - Destravando acesso Bybit`);
 });
